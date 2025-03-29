@@ -39,7 +39,7 @@ export default function CategoryMenu() {
           <div className="flex gap-3 px-4 py-4 lg:pt-8 overflow-x-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-base-200 whitespace-nowrap scroll-smooth">
             {categories.map((category) => (
               <Link
-                key={category._id}
+                key={category.slug}
                 href={`/categories/${category.slug}`}
                 ref={(el) => {
                   if (el) categoryRefs.current[category.slug] = el;

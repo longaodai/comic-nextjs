@@ -24,7 +24,7 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center px-4 py-3">
         {/* Logo */}
         <h1 className="text-3xl font-bold text-primary">
-          <Link href="/">Comic</Link>
+          <Link href="/">Truyentranh.online</Link>
         </h1>
 
         {/* Search Bar */}
@@ -53,6 +53,11 @@ const Header: React.FC = () => {
             <li>
               <Link href="/" className="hover:text-secondary">
                 Home
+              </Link>
+            </li>
+            <li>
+              <Link href="/list" className="hover:text-secondary">
+                Danh mục
               </Link>
             </li>
             <li>
@@ -85,6 +90,15 @@ const Header: React.FC = () => {
           <li>
             <Link href="/" className="block" onClick={() => setMenuOpen(false)}>
               Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/list"
+              className="block"
+              onClick={() => setMenuOpen(false)}
+            >
+              Danh mục
             </Link>
           </li>
           <li>

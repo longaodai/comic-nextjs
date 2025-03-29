@@ -1,68 +1,79 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { Metadata } from 'next';
+import { request } from '@/config/axios';
 import { Search } from 'lucide-react';
 import Pagination from '@/components/ui/Pagination';
 import ComicCard from '@/components/ui/ComicCard';
-import SkeletonSearch from '@/components/ui/skeletons/SkeletonSearch';
 import { Comic } from '@/types/comic';
-import { request } from '@/config/axios';
-import useDebounce from '@/hooks/useDebounce';
 
-interface PaginationData {
-  totalItems: number;
-  totalItemsPerPage: number;
-  currentPage: number;
-  pageRanges: number;
+const SITE_URL = 'https://truyentranh.online';
+
+interface SearchParams {
+  searchParams: { q?: string; page?: string };
 }
 
-export default function SearchPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const query = searchParams.get('q') || '';
-  const page = parseInt(searchParams.get('page') || '1', 10);
+async function getSearchResults(query: string, page: number) {
+  if (!query.trim()) return { comics: [], pagination: null };
 
-  const [comics, setComics] = useState<Comic[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [pagination, setPagination] = useState<PaginationData>({
-    totalItems: 0,
-    totalItemsPerPage: 24,
-    currentPage: 1,
-    pageRanges: 3,
-  });
-  const [searchQuery, setSearchQuery] = useState<string>(query);
-  const debouncedSearchQueryValue = useDebounce(searchQuery, 500);
+  try {
+    const response = await request.get(
+      `/tim-kiem?keyword=${query}&page=${page}`
+    );
+    const data = response.data.data;
+    return {
+      comics: data.items || [],
+      pagination: data.params.pagination || null,
+    };
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+    return { comics: [], pagination: null };
+  }
+}
 
-  useEffect(() => {
-    if (
-      typeof debouncedSearchQueryValue === 'string' &&
-      !debouncedSearchQueryValue.trim()
-    )
-      return;
-
-    setLoading(true);
-    request
-      .get(`/tim-kiem?keyword=${debouncedSearchQueryValue}&page=${page}`)
-      .then((response) => {
-        const data = response.data.data;
-        setComics(data.items || []);
-        setPagination(data.params.pagination);
-      })
-      .catch(() => {
-        setComics([]);
-      })
-      .finally(() => {
-        setLoading(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-  }, [debouncedSearchQueryValue, page]);
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    router.push(`?q=${searchQuery}&page=1`);
+export async function generateMetadata({
+  searchParams,
+}: SearchParams): Promise<Metadata> {
+  const query = searchParams.q || '';
+  const title = query
+    ? `Kết quả tìm kiếm cho "${query}" - TruyenTranh.Online`
+    : 'Tìm kiếm - TruyenTranh.Online';
+  const description = `Tìm kiếm truyện tranh với từ khóa "${query}". Khám phá hàng ngàn bộ truyện tranh hấp dẫn được cập nhật liên tục tại TruyenTranh.Online.`;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SearchResultsPage',
+    name: title,
+    description,
+    url: `${SITE_URL}/search?q=${query}`,
   };
+
+  return {
+    title,
+    description,
+    keywords: ['tìm kiếm truyện tranh', 'đọc truyện tranh', query].join(', '),
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url: `${SITE_URL}/search?q=${query}`,
+      siteName: 'TruyenTranh.Online',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/search?q=${query}`,
+    },
+    other: {
+      'application/ld+json': JSON.stringify(structuredData),
+    },
+  };
+}
+
+export default async function SearchPage({ searchParams }: SearchParams) {
+  const query = searchParams.q || '';
+  const page = parseInt(searchParams.page || '1', 10);
+  const { comics, pagination } = await getSearchResults(query, page);
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
@@ -71,15 +82,16 @@ export default function SearchPage() {
       </h1>
 
       <form
-        onSubmit={handleSearch}
+        action="/search"
+        method="GET"
         className="flex items-center bg-base-200 rounded-full px-4 py-2 mb-6 max-w-lg mx-auto focus-within:ring-2 focus-within:ring-secondary shadow-sm hover:shadow-md"
       >
         <input
           type="text"
+          name="q"
           placeholder="Nhập tên truyện..."
+          defaultValue={query}
           className="bg-transparent outline-none px-3 py-2 w-full text-lg"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
         />
         <button
           type="submit"
@@ -89,11 +101,9 @@ export default function SearchPage() {
         </button>
       </form>
 
-      {loading ? (
-        <SkeletonSearch />
-      ) : comics.length > 0 ? (
+      {comics.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {comics.map((comic) => (
+          {comics.map((comic: Comic) => (
             <ComicCard comic={comic} key={comic.slug} />
           ))}
         </div>
@@ -103,7 +113,7 @@ export default function SearchPage() {
         </p>
       )}
 
-      {!loading && pagination.totalItems > pagination.totalItemsPerPage && (
+      {pagination && pagination.totalItems > pagination.totalItemsPerPage && (
         <Pagination
           totalItems={pagination.totalItems}
           itemsPerPage={pagination.totalItemsPerPage}

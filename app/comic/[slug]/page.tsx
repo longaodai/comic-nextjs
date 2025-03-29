@@ -1,67 +1,73 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Metadata } from 'next';
 import Image from 'next/image';
-import SkeletonComicDetail from '@/components/ui/skeletons/SkeletonComicDetail';
 import { request } from '@/config/axios';
+import { notFound } from 'next/navigation';
+import ChapterList from '@/components/ui/ChapterList';
+import { Chapter, Comic } from '@/types/comic';
+import ComicDescription from '@/components/ui/ComicDescription';
+import Link from 'next/link';
 
-interface Chapter {
-  chapter_name: string;
+const SITE_URL = 'https://truyentranh.online';
+
+interface ComicDetailPageProps {
+  params: { slug: string };
 }
 
-interface Comic {
-  _id: string;
-  slug: string;
-  thumb_url: string;
-  name: string;
-  status: string;
-  category: { id: number; name: string }[];
-  content: string;
-  chapters?: { server_data?: Chapter[] }[];
+async function getComicDetail(slug: string): Promise<Comic | null> {
+  try {
+    const response = await request.get(`/truyen-tranh/${slug}`);
+    return response.data.data.item || null;
+  } catch (error) {
+    console.error('Error fetching comic details:', error);
+    return null;
+  }
 }
 
-export default function ComicDetailPage() {
-  const { slug } = useParams();
-  const router = useRouter();
-  const [comic, setComic] = useState<Comic | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showAllChapters, setShowAllChapters] = useState<boolean>(false);
+export async function generateMetadata({
+  params,
+}: ComicDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const comic = await getComicDetail(slug);
+  if (!comic) return {};
 
-  useEffect(() => {
-    if (!slug) return;
+  const title = `${comic.name} - Đọc Truyện Tranh Online`;
+  const description = `Đọc truyện ${
+    comic.name
+  } miễn phí với đầy đủ chapter cập nhật mới nhất. Thể loại: ${comic.category
+    .map((c) => c.name)
+    .join(', ')}.`;
 
-    request
-      .get(`/truyen-tranh/${slug}`)
-      .then((response) => {
-        setComic(response.data.data.item);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Không thể tải thông tin truyện.');
-        setLoading(false);
-      });
-  }, [slug]);
+  return {
+    title,
+    description,
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: `${SITE_URL}/comic/${comic.slug}`,
+      images: [
+        {
+          url: `https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`,
+          width: 800,
+          height: 1200,
+          alt: comic.name,
+        },
+      ],
+    },
+  };
+}
 
-  if (loading) return <SkeletonComicDetail />;
+export default async function ComicDetailPage({
+  params,
+}: ComicDetailPageProps) {
+  const { slug } = await params;
+  const comic = await getComicDetail(slug);
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg font-semibold text-error">{error}</p>
-      </div>
-    );
-  }
-
-  if (!comic) {
-    return <p className="text-center text-gray-500">Không tìm thấy truyện.</p>;
-  }
+  if (!comic) return notFound();
 
   const chapters: Chapter[] = [
     ...(comic?.chapters?.[0]?.server_data || []),
   ].sort((a, b) => Number(b.chapter_name) - Number(a.chapter_name));
-  const visibleChapters = showAllChapters ? chapters : chapters.slice(0, 20);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -78,55 +84,21 @@ export default function ComicDetailPage() {
         </div>
         <div className="p-6 lg:w-3/4">
           <h1 className="text-3xl font-bold text-base-content">{comic.name}</h1>
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            <span className="badge badge-primary text-xs">{comic.status}</span>
-          </div>
           <div className="flex flex-wrap gap-2 mt-3">
-            {comic.category?.map((cat) => (
-              <span key={cat.id} className="badge badge-secondary text-xs">
+            {comic.category.map((cat) => (
+              <Link
+                href={`/categories/${cat.slug}`}
+                key={cat.slug}
+                className="badge badge-secondary text-xs"
+              >
                 {cat.name}
-              </span>
+              </Link>
             ))}
           </div>
-          <p
-            className="mt-4 text-base-content text-sm line-clamp-5"
-            dangerouslySetInnerHTML={{ __html: comic.content }}
-          ></p>
+          <ComicDescription content={comic?.content || null} />
         </div>
       </div>
-
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold">Chapters</h2>
-        {visibleChapters.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-4">
-              {visibleChapters.map((chapter, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    router.push(`/comic/${comic.slug}/${chapter.chapter_name}`)
-                  }
-                  className="btn btn-sm btn-outline btn-primary text-center"
-                >
-                  Chap {chapter.chapter_name}
-                </button>
-              ))}
-            </div>
-            {chapters.length > 20 && (
-              <button
-                onClick={() => setShowAllChapters(!showAllChapters)}
-                className="mt-4 w-full text-primary font-bold hover:underline"
-              >
-                {showAllChapters
-                  ? 'Thu gọn'
-                  : `Xem thêm (${chapters.length - 20} chương)`}
-              </button>
-            )}
-          </>
-        ) : (
-          <p className="text-gray-500">Không có chương nào.</p>
-        )}
-      </div>
+      <ChapterList comicSlug={comic.slug} initialChapters={chapters} />
     </div>
   );
 }

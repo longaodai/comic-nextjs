@@ -2,38 +2,47 @@
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
-import ComicCard from './ComicCard';
-import { Comic } from '@/types/comic';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
+import { COMIC_LIST_TYPE } from '@/utils/constants';
 
-interface HomeSliderProps {
-  comics: Comic[];
-}
-
-export default function HomeSlider({ comics }: HomeSliderProps) {
-  if (!comics || comics.length === 0) return null;
+export default function HomeBanner() {
+  const router = useRouter();
 
   return (
     <div className="container mx-auto my-6">
       <Swiper
         modules={[Autoplay, Navigation]}
-        spaceBetween={10}
-        slidesPerView={2}
-        breakpoints={{
-          640: { slidesPerView: 4 },
-          1024: { slidesPerView: 6 },
-        }}
-        slidesPerGroup={1}
+        slidesPerView={1}
         navigation
-        autoplay={{ delay: 4000, disableOnInteraction: false }}
-        loop={true}
-        className="rounded-lg shadow-lg"
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        loop
+        className="rounded-lg shadow-xl"
       >
-        {comics.map((comic) => (
-          <SwiperSlide key={comic._id}>
-            <ComicCard comic={comic} />
+        {COMIC_LIST_TYPE.map((banner, index) => (
+          <SwiperSlide key={index}>
+            <div
+              className="relative h-48 md:h-80 lg:h-96 cursor-pointer group overflow-hidden"
+              onClick={() => router.push(banner.url)}
+            >
+              <Image
+                src={banner.image}
+                alt={banner.title}
+                fill
+                sizes="100vw"
+                className="object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-black/70 p-6 rounded-lg shadow-xl">
+                  <h2 className="text-white text-3xl md:text-5xl font-bold">
+                    {banner.title}
+                  </h2>
+                </div>
+              </div>
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
