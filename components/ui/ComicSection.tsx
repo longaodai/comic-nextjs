@@ -2,14 +2,16 @@ import { Comic } from '@/types/comic';
 import ComicCard from './ComicCard';
 import SectionTitle from './SectionTitle';
 
-const ComicSection = ({
-  title,
-  comics,
-  color,
-}: {
+interface ComicSectionProps {
   title: string;
   comics: Comic[];
   color: string;
+}
+
+export const ComicSection: React.FC<ComicSectionProps> = ({
+  title,
+  comics,
+  color,
 }) => (
   <div className="rounded-xl shadow-xl mt-16">
     <SectionTitle title={title} color={color} />

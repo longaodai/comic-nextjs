@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="cupcake">
+    <html lang="en">
       <body>
         <ClientLayout>{children}</ClientLayout>
       </body>

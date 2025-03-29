@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getLatestChapter, timeAgo } from '../utils/utils';
+import { getLatestChapter, timeAgo } from '../../utils/utils';
+import Image from 'next/image';
 
 interface Category {
   id: number;
@@ -24,10 +25,12 @@ export default function ComicCard({ comic }: ComicCardProps) {
   return (
     <Link href={`/comic/${comic.slug}`} className="block group">
       <div className="relative w-full aspect-[3/4] overflow-hidden rounded-sm shadow-lg bg-base-100 transition-transform duration-300 hover:scale-105">
-        <img
+        <Image
           src={`https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`}
           alt={comic.name}
-          loading="lazy"
+          width={800}
+          height={1200}
+          unoptimized
           className="w-full h-full object-cover rounded-sm group-hover:opacity-80"
         />
         {/* Overlay Gradient */}

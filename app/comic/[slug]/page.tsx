@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import SkeletonComicDetail from '@/components/ui/skeletons/SkeletonComicDetail';
 import { request } from '@/config/axios';
 
@@ -66,10 +67,13 @@ export default function ComicDetailPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-col lg:flex-row bg-base-100 shadow-xl rounded-xl overflow-hidden">
         <div className="relative w-full lg:w-1/4">
-          <img
+          <Image
             src={`https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`}
             alt={comic.name}
             className="w-full h-full object-cover"
+            width={800}
+            height={1200}
+            unoptimized
           />
         </div>
         <div className="p-6 lg:w-3/4">
@@ -96,9 +100,9 @@ export default function ComicDetailPage() {
         {visibleChapters.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-4">
-              {visibleChapters.map((chapter) => (
+              {visibleChapters.map((chapter, index) => (
                 <button
-                  key={chapter.chapter_name}
+                  key={index}
                   onClick={() =>
                     router.push(`/comic/${comic.slug}/${chapter.chapter_name}`)
                   }

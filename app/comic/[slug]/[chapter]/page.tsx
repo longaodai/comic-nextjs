@@ -7,6 +7,7 @@ import SectionTitle from '@/components/ui/SectionTitle';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import SkeletonComicReader from '@/components/ui/skeletons/SkeletonComicReader';
 import { request } from '@/config/axios';
+import Image from 'next/image';
 
 export default function ComicReaderPage() {
   const params = useParams();
@@ -68,7 +69,8 @@ export default function ComicReaderPage() {
         setError('Failed to fetch comic details.');
         setLoading(false);
       });
-  }, [slug, chapter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter]);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -142,11 +144,13 @@ export default function ComicReaderPage() {
         }`}
       >
         {chapterData?.chapter_image.map((img: any) => (
-          <img
+          <Image
             key={img.image_page}
             src={`${domainCdn}/${chapterData.chapter_path}/${img.image_file}`}
             alt={`Page ${img.image_page}`}
-            loading="lazy"
+            width={800}
+            height={1200}
+            unoptimized
             className="w-full max-w-3xl rounded-lg shadow-md"
           />
         ))}

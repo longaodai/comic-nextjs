@@ -8,7 +8,7 @@ import ComicCard from '@/components/ui/ComicCard';
 import SkeletonSearch from '@/components/ui/skeletons/SkeletonSearch';
 import { Comic } from '@/types/comic';
 import { request } from '@/config/axios';
-import useDebounce from '@/components/hooks/useDebounce';
+import useDebounce from '@/hooks/useDebounce';
 
 interface PaginationData {
   totalItems: number;

@@ -11,7 +11,9 @@ const ClientLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div data-theme={theme} className="min-h-screen">
       <Header />
+
       <CategoryMenu />
+
       {children}
 
       <ScrollToTop />
