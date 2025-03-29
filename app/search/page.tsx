@@ -7,8 +7,11 @@ import { Comic } from '@/types/comic';
 
 const SITE_URL = 'https://truyentranh.online';
 
-interface SearchParams {
-  searchParams: { q?: string; page?: string };
+interface PageProps {
+  searchParams: Promise<{
+    q?: string;
+    page?: string;
+  }>;
 }
 
 async function getSearchResults(query: string, page: number) {
@@ -31,8 +34,9 @@ async function getSearchResults(query: string, page: number) {
 
 export async function generateMetadata({
   searchParams,
-}: SearchParams): Promise<Metadata> {
-  const query = searchParams.q || '';
+}: PageProps): Promise<Metadata> {
+  const { q } = await searchParams;
+  const query = q || '';
   const title = query
     ? `Kết quả tìm kiếm cho "${query}" - TruyenTranh.Online`
     : 'Tìm kiếm - TruyenTranh.Online';
@@ -70,10 +74,11 @@ export async function generateMetadata({
   };
 }
 
-export default async function SearchPage({ searchParams }: SearchParams) {
-  const query = searchParams.q || '';
-  const page = parseInt(searchParams.page || '1', 10);
-  const { comics, pagination } = await getSearchResults(query, page);
+export default async function SearchPage({ searchParams }: PageProps) {
+  const { q, page } = await searchParams;
+  const query = q || '';
+  const currentPage = parseInt(page || '1', 10);
+  const { comics, pagination } = await getSearchResults(query, currentPage);
 
   return (
     <div className="container mx-auto p-4 min-h-screen">

@@ -12,11 +12,18 @@ interface PaginationData {
   pageRanges: number;
 }
 
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+  searchParams: Promise<{
+    page?: string;
+  }>;
+}
+
 export async function generateMetadata({
   params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const response = await request.get(`/the-loai/${slug}?page=1`);
   const data = response.data.data;
@@ -29,10 +36,7 @@ export async function generateMetadata({
 export default async function ComicCategoryPage({
   params,
   searchParams,
-}: {
-  params: { slug: string };
-  searchParams: { page?: string };
-}) {
+}: PageProps) {
   const { page } = await searchParams;
   const currentPage = parseInt(page || '1', 10);
   let comics: Comic[] = [];

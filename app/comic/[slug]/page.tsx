@@ -9,8 +9,10 @@ import Link from 'next/link';
 
 const SITE_URL = 'https://truyentranh.online';
 
-interface ComicDetailPageProps {
-  params: { slug: string };
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
 async function getComicDetail(slug: string): Promise<Comic | null> {
@@ -25,7 +27,7 @@ async function getComicDetail(slug: string): Promise<Comic | null> {
 
 export async function generateMetadata({
   params,
-}: ComicDetailPageProps): Promise<Metadata> {
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const comic = await getComicDetail(slug);
   if (!comic) return {};
@@ -57,9 +59,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ComicDetailPage({
-  params,
-}: ComicDetailPageProps) {
+export default async function ComicDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const comic = await getComicDetail(slug);
 
