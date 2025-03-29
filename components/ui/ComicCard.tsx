@@ -1,21 +1,7 @@
 import Link from 'next/link';
 import { getLatestChapter, timeAgo } from '../../utils/utils';
 import Image from 'next/image';
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Comic {
-  slug: string;
-  thumb_url: string;
-  name: string;
-  chaptersLatest: any[];
-  updatedAt: string;
-  status: string;
-  category: Category[];
-}
+import { Comic } from '@/types/comic';
 
 interface ComicCardProps {
   comic: Comic;
@@ -33,10 +19,8 @@ export default function ComicCard({ comic }: ComicCardProps) {
           unoptimized
           className="w-full h-full object-cover rounded-sm group-hover:opacity-80"
         />
-        {/* Overlay Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
 
-        {/* Thông tin Truyện */}
         <div className="absolute bottom-2 left-2 right-2 text-white">
           <h3 className="text-lg font-bold line-clamp-2">{comic.name}</h3>
           <div className="flex justify-between text-sm opacity-80">
@@ -47,11 +31,10 @@ export default function ComicCard({ comic }: ComicCardProps) {
           </div>
         </div>
 
-        {/* Thể loại & trạng thái */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           <span className="badge badge-primary text-xs">{comic.status}</span>
           {comic.category.slice(0, 2).map((cat) => (
-            <span key={cat.id} className="badge badge-secondary text-xs">
+            <span key={cat.slug} className="badge badge-secondary text-xs">
               {cat.name}
             </span>
           ))}
