@@ -1,11 +1,9 @@
-// utils/seoHelper.ts
-import { CDN_IMAGE_URL, SITE_URL } from '@/utils/constants';
+import { CDN_IMAGE_URL, SITE_NAME, SITE_URL } from '@/utils/constants';
 import { Category, Comic, SEOData } from '@/types/comic';
 
 export function generateSEOData(seo: SEOData | null) {
-  const defaultTitle = 'Đọc truyện tranh online miễn phí - Cập nhật nhanh';
-  const defaultDescription =
-    'Truyentranh.online - Website đọc truyện tranh miễn phí, cập nhật nhanh nhất với chất lượng hình ảnh sắc nét.';
+  const defaultTitle = `Đọc Truyện Tranh Online Miễn Phí - ${SITE_NAME}`;
+  const defaultDescription = `${SITE_NAME} - Website đọc truyện tranh miễn phí với hàng ngàn bộ truyện hấp dẫn. Cập nhật nhanh nhất, chất lượng cao, không quảng cáo.`;
 
   const ogImages =
     seo?.og_image && seo.og_image.length
@@ -13,11 +11,11 @@ export function generateSEOData(seo: SEOData | null) {
           url: `${CDN_IMAGE_URL}${img}`,
           width: 1200,
           height: 630,
-          alt: seo.titleHead || defaultTitle,
+          alt: defaultTitle,
         }))
       : [
           {
-            url: `${CDN_IMAGE_URL}/default-og-image.jpg`,
+            url: `${SITE_URL}/default-og-image.jpg`,
             width: 1200,
             height: 630,
             alt: defaultTitle,
@@ -25,21 +23,21 @@ export function generateSEOData(seo: SEOData | null) {
         ];
 
   return {
-    title: seo?.titleHead || defaultTitle,
-    description: seo?.descriptionHead || defaultDescription,
+    title: defaultTitle,
+    description: defaultDescription,
     openGraph: {
       type: seo?.og_type || 'website',
-      title: seo?.titleHead || defaultTitle,
-      description: seo?.descriptionHead || defaultDescription,
+      title: defaultTitle,
+      description: defaultDescription,
       url: SITE_URL,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
       images: ogImages,
       locale: 'vi_VN',
     },
     twitter: {
       card: 'summary_large_image',
-      title: seo?.titleHead || defaultTitle,
-      description: seo?.descriptionHead || defaultDescription,
+      title: defaultTitle,
+      description: defaultDescription,
       images: ogImages.map((img) => img.url),
     },
     alternates: {
@@ -50,9 +48,9 @@ export function generateSEOData(seo: SEOData | null) {
       'application/ld+json': JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'TruyenTranh.Online',
+        name: SITE_NAME,
         url: SITE_URL,
-        description: seo?.descriptionHead || defaultDescription,
+        description: defaultDescription,
         potentialAction: {
           '@type': 'SearchAction',
           target: `${SITE_URL}/search?q={search_term_string}`,
@@ -64,26 +62,21 @@ export function generateSEOData(seo: SEOData | null) {
 }
 
 export function generateCategorySEO(categories: Category[]) {
-  const title = 'Danh Mục Thể Loại Truyện Tranh - TruyenTranh.Online';
-  const description =
-    'Khám phá danh mục thể loại truyện tranh đa dạng trên TruyenTranh.Online. Cập nhật nhanh các thể loại manga, manhwa, manhua hay nhất!';
+  const title = `Danh Mục Truyện Tranh Hay Nhất - ${SITE_NAME}`;
+  const description = `Tổng hợp danh mục truyện tranh đặc sắc trên ${SITE_NAME}. Đọc truyện tranh mới, hot, full chap nhanh nhất!`;
   const url = `${SITE_URL}/categories`;
 
   const keywords = [
     'thể loại truyện tranh',
-    'truyện tranh hay',
-    'truyện tranh mới',
+    'truyện tranh hay nhất',
+    'truyện tranh online',
     'manga',
     'manhwa',
     'manhua',
-    'truyện tranh online',
     ...categories.map((c) => c.name.toLowerCase()),
   ].join(', ');
 
-  const ogImage =
-    categories.length > 0
-      ? `${CDN_IMAGE_URL}/categories/${categories[0].slug}.jpg`
-      : `${CDN_IMAGE_URL}/default-category.jpg`;
+  const ogImage = `${SITE_URL}/default-category.jpg`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -108,7 +101,7 @@ export function generateCategorySEO(categories: Category[]) {
       title,
       description,
       url,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
       locale: 'vi_VN',
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
@@ -125,10 +118,9 @@ export function generateCategorySEO(categories: Category[]) {
 }
 
 export function generateComicListSEO() {
-  const title = 'Danh Sách Truyện Tranh - TruyenTranh.Online';
-  const description =
-    'Khám phá danh sách các bộ truyện tranh hot nhất, được cập nhật liên tục trên TruyenTranh.Online. Đọc truyện miễn phí, nhanh chóng, chất lượng cao!';
-  const url = `${SITE_URL}/comic-list`;
+  const title = `Danh Sách Truyện Tranh Hot Nhất - ${SITE_NAME}`;
+  const description = `Khám phá danh sách truyện tranh hay nhất, mới nhất và được yêu thích trên ${SITE_NAME}. Đọc truyện miễn phí, chất lượng cao, không quảng cáo!`;
+  const url = `${SITE_URL}/list`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -138,13 +130,13 @@ export function generateComicListSEO() {
     description,
     publisher: {
       '@type': 'Organization',
-      name: 'TruyenTranh.Online',
+      name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/logo.png`,
       },
     },
-    image: `${CDN_IMAGE_URL}/default-cover.jpg`,
+    image: `${SITE_URL}/default-cover.jpg`,
     mainEntity: {
       '@type': 'ItemList',
       name: 'Danh Sách Truyện Tranh',
@@ -152,14 +144,26 @@ export function generateComicListSEO() {
         {
           '@type': 'ListItem',
           position: 1,
-          name: 'Truyện mới cập nhật',
-          url: `${SITE_URL}/comic-list/latest`,
+          name: 'Truyện Mới',
+          url: `${SITE_URL}/list/truyen-moi`,
         },
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Truyện đang hot',
-          url: `${SITE_URL}/comic-list/trending`,
+          name: 'Sắp Ra Mắt',
+          url: `${SITE_URL}/list/sap-ra-mat`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: 'Đang Phát Hành',
+          url: `${SITE_URL}/list/dang-phat-hanh`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: 'Hoàn Thành',
+          url: `${SITE_URL}/list/hoan-thanh`,
         },
       ],
     },
@@ -176,18 +180,18 @@ export function generateComicListSEO() {
       'manga',
       'manhwa',
       'manhua',
-      'truyen tranh full',
+      'truyện tranh full',
     ].join(', '),
     openGraph: {
       type: 'website',
       title,
       description,
       url,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
       locale: 'vi_VN',
       images: [
         {
-          url: `${CDN_IMAGE_URL}/default-cover.jpg`,
+          url: `${SITE_URL}/default-cover.jpg`,
           width: 1200,
           height: 630,
           alt: title,
@@ -198,7 +202,7 @@ export function generateComicListSEO() {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${CDN_IMAGE_URL}/default-cover.jpg`],
+      images: [`${SITE_URL}/default-cover.jpg`],
     },
     alternates: {
       canonical: url,
@@ -215,8 +219,8 @@ export function generateComicCategorySEO(
   title: string,
   comics: Comic[]
 ) {
-  const url = `${SITE_URL}/danh-sach/${slug}`;
-  const description = `Khám phá danh sách các bộ truyện tranh thuộc thể loại ${title} trên TruyenTranh.Online. Đọc truyện miễn phí, cập nhật nhanh chóng!`;
+  const url = `${SITE_URL}/categories/${slug}`;
+  const description = `Đọc truyện tranh ${title} mới nhất, miễn phí, cập nhật nhanh chóng tại ${SITE_NAME}. Kho truyện đa dạng: manga, manhwa, manhua, truyện màu, truyện full!`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -226,47 +230,48 @@ export function generateComicCategorySEO(
     description,
     publisher: {
       '@type': 'Organization',
-      name: 'TruyenTranh.Online',
+      name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/logo.png`,
       },
     },
-    image: `${CDN_IMAGE_URL}/default-category.jpg`,
-    mainEntity: {
-      '@type': 'ItemList',
-      name: `Danh sách truyện ${title}`,
-      itemListElement: comics.slice(0, 10).map((comic, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: comic.name,
-        url: `${SITE_URL}/truyen/${comic.slug}`,
-      })),
-    },
+    image: `${SITE_URL}/default-category.jpg`,
+    hasPart: comics.slice(0, 10).map((comic, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: comic.name,
+      url: `${SITE_URL}/comic/${comic.slug}`,
+    })),
   };
 
   return {
-    title: title || 'Danh Sách Truyện Tranh - TruyenTranh.Online',
+    title: `${title} - Thể Loại Truyện Tranh Hot | ${SITE_NAME}`,
     description,
     keywords: [
-      `truyện ${title}`,
+      `truyện ${title} hay`,
+      `đọc truyện ${title} miễn phí`,
       'truyện tranh online',
-      'truyện tranh hay',
+      'truyện tranh hot',
+      'truyện tranh mới',
+      'truyện tranh full',
       'manga',
       'manhwa',
       'manhua',
-      'truyen tranh full',
+      'webtoon',
+      `truyen ${title} hay nhat`,
+      `doc truyen ${title} nhanh nhat`,
     ].join(', '),
     openGraph: {
       type: 'website',
-      title,
+      title: `${title} - Thể Loại Truyện Tranh Hot | ${SITE_NAME}`,
       description,
       url,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
       locale: 'vi_VN',
       images: [
         {
-          url: `${CDN_IMAGE_URL}/default-category.jpg`,
+          url: `${SITE_URL}/default-category.jpg`,
           width: 1200,
           height: 630,
           alt: title,
@@ -275,9 +280,9 @@ export function generateComicCategorySEO(
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} - Thể Loại Truyện Tranh Hot | ${SITE_NAME}`,
       description,
-      images: [`${CDN_IMAGE_URL}/default-category.jpg`],
+      images: [`${SITE_URL}/default-category.jpg`],
     },
     alternates: {
       canonical: url,
@@ -294,8 +299,8 @@ export function generateComicGenreSEO(
   title: string,
   comics: Comic[]
 ) {
-  const url = `${SITE_URL}/the-loai/${slug}`;
-  const description = `Khám phá thể loại truyện tranh ${title} trên TruyenTranh.Online. Cập nhật nhanh, đọc truyện miễn phí với hàng ngàn bộ truyện hấp dẫn!`;
+  const url = `${SITE_URL}/list/${slug}`;
+  const description = `Khám phá Danh Mục truyện tranh ${title} mới nhất tại ${SITE_NAME}. Đọc truyện miễn phí, cập nhật nhanh, hàng ngàn bộ truyện hấp dẫn đang chờ bạn!`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -305,46 +310,48 @@ export function generateComicGenreSEO(
     description,
     publisher: {
       '@type': 'Organization',
-      name: 'TruyenTranh.Online',
+      name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/logo.png`,
       },
     },
-    image: `${CDN_IMAGE_URL}/default-category.jpg`,
-    mainEntity: {
-      '@type': 'ItemList',
-      name: `Danh sách truyện thể loại ${title}`,
-      itemListElement: comics.slice(0, 10).map((comic, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: comic.name,
-        url: `${SITE_URL}/truyen/${comic.slug}`,
-      })),
-    },
+    image: `${SITE_URL}/default-category.jpg`,
+    hasPart: comics.slice(0, 10).map((comic, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: comic.name,
+      url: `${SITE_URL}/comic/${comic.slug}`,
+    })),
   };
 
   return {
-    title: title || 'Thể Loại Truyện Tranh - TruyenTranh.Online',
+    title: `${title} - Danh Mục Truyện Tranh Hot | ${SITE_NAME}`,
     description,
     keywords: [
-      `truyện ${title}`,
+      `truyện ${title} hay`,
+      `đọc truyện ${title} miễn phí`,
       'truyện tranh online',
-      'truyện tranh hay',
+      'truyện tranh hot',
+      'truyện tranh mới',
+      'truyện tranh full',
       'manga',
       'manhwa',
       'manhua',
-      'truyen tranh full',
+      'webtoon',
+      `truyen ${title} hay nhat`,
+      `doc truyen ${title} nhanh nhat`,
     ].join(', '),
     openGraph: {
       type: 'website',
-      title,
+      title: `${title} - Danh Mục Truyện Tranh Hot | ${SITE_NAME}`,
       description,
       url,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
+      locale: 'vi_VN',
       images: [
         {
-          url: `${CDN_IMAGE_URL}/default-category.jpg`,
+          url: `${SITE_URL}/default-category.jpg`,
           width: 1200,
           height: 630,
           alt: title,
@@ -353,9 +360,9 @@ export function generateComicGenreSEO(
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} - Danh Mục Truyện Tranh Hot | ${SITE_NAME}`,
       description,
-      images: [`${CDN_IMAGE_URL}/default-category.jpg`],
+      images: [`${SITE_URL}/default-category.jpg`],
     },
     alternates: {
       canonical: url,
@@ -369,12 +376,12 @@ export function generateComicGenreSEO(
 
 export function generateComicDetailSEO(comic: Comic) {
   const url = `${SITE_URL}/comic/${comic.slug}`;
-  const title = `${comic.name} - Đọc Truyện Tranh Online`;
+  const title = `${comic.name} - Đọc Truyện Tranh Online Miễn Phí | ${SITE_NAME}`;
   const description = `Đọc truyện tranh ${
     comic.name
   } miễn phí với đầy đủ chapter cập nhật mới nhất. Thể loại: ${comic.category
     .map((c) => c.name)
-    .join(', ')}.`;
+    .join(', ')}. Trải nghiệm truyện tranh hấp dẫn tại ${SITE_NAME}!`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -382,15 +389,12 @@ export function generateComicDetailSEO(comic: Comic) {
     name: comic.name,
     url,
     description,
-    image: `https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`,
+    image: `${CDN_IMAGE_URL}/uploads/comics/${comic.thumb_url}`,
     genre: comic.category.map((c) => c.name),
-    author: {
-      '@type': 'Person',
-      name: 'TruyenTranh.Online',
-    },
+    author: SITE_NAME,
     publisher: {
       '@type': 'Organization',
-      name: 'TruyenTranh.Online',
+      name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/logo.png`,
@@ -406,23 +410,27 @@ export function generateComicDetailSEO(comic: Comic) {
     title,
     description,
     keywords: [
-      `${comic.name} chap mới`,
-      `đọc truyện ${comic.name}`,
-      'truyện tranh online',
+      `${comic.name} chap mới nhất`,
+      `đọc truyện ${comic.name} full`,
+      `truyện tranh ${comic.name} online`,
+      'truyện tranh hot',
+      'truyện tranh mới',
       'manga',
       'manhwa',
       'manhua',
-      'truyện tranh full',
+      'webtoon',
+      `truyen ${comic.name} hay nhat`,
+      `doc truyen ${comic.name} nhanh nhat`,
     ].join(', '),
     openGraph: {
       type: 'article',
       title,
       description,
       url,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
       images: [
         {
-          url: `https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`,
+          url: `${CDN_IMAGE_URL}/uploads/comics/${comic.thumb_url}`,
           width: 800,
           height: 1200,
           alt: comic.name,
@@ -433,7 +441,7 @@ export function generateComicDetailSEO(comic: Comic) {
       card: 'summary_large_image',
       title,
       description,
-      images: [`https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`],
+      images: [`${CDN_IMAGE_URL}/uploads/comics/${comic.thumb_url}`],
     },
     alternates: {
       canonical: url,
@@ -446,13 +454,13 @@ export function generateComicDetailSEO(comic: Comic) {
 }
 
 export function generateSearchSEO(query: string) {
-  const url = `${SITE_URL}/search?q=${query}`;
+  const url = `${SITE_URL}/search?q=${encodeURIComponent(query)}`;
   const title = query
-    ? `Kết quả tìm kiếm cho "${query}" - TruyenTranh.Online`
-    : 'Tìm kiếm truyện tranh - TruyenTranh.Online';
+    ? `Kết quả tìm kiếm cho "${query}" - ${SITE_NAME}`
+    : `Tìm kiếm truyện tranh - ${SITE_NAME}`;
   const description = query
-    ? `Tìm kiếm truyện tranh với từ khóa "${query}". Khám phá hàng ngàn bộ truyện tranh hấp dẫn được cập nhật liên tục tại TruyenTranh.Online.`
-    : 'Tìm kiếm truyện tranh online miễn phí tại TruyenTranh.Online. Khám phá hàng ngàn bộ truyện hấp dẫn, cập nhật mỗi ngày.';
+    ? `Tìm kiếm truyện tranh với từ khóa "${query}". Khám phá hàng ngàn bộ truyện tranh hấp dẫn được cập nhật liên tục tại ${SITE_NAME}.`
+    : `Tìm kiếm truyện tranh online miễn phí tại ${SITE_NAME}. Khám phá hàng ngàn bộ truyện hấp dẫn, cập nhật mỗi ngày.`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -469,10 +477,13 @@ export function generateSearchSEO(query: string) {
       'tìm kiếm truyện tranh',
       'đọc truyện tranh',
       query,
+      'truyện tranh hot',
+      'truyện tranh mới',
       'manga',
       'manhwa',
       'manhua',
-      'truyện tranh online',
+      'webtoon',
+      `tim truyen ${query} nhanh nhat`,
     ]
       .filter(Boolean)
       .join(', '),
@@ -481,7 +492,7 @@ export function generateSearchSEO(query: string) {
       title,
       description,
       url,
-      siteName: 'TruyenTranh.Online',
+      siteName: SITE_NAME,
     },
     twitter: {
       card: 'summary_large_image',
