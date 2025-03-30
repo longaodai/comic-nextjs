@@ -1,70 +1,15 @@
-import { Metadata } from 'next';
-import { request } from '@/config/axios';
+import { generateCategorySEO } from '@/utils/seoHelper';
 import SectionTitle from '@/components/ui/SectionTitle';
 import Link from 'next/link';
-import { Category } from '@/types/comic';
+import { fetchCategories } from '@/services/category';
 
-const SITE_URL = 'https://truyentranh.online';
-
-async function getCategoriesData() {
-  try {
-    const response = await request.get<{ data: { items: Category[] } }>(
-      '/the-loai'
-    );
-    return response.data.data.items || [];
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    return [];
-  }
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Danh Mục Thể Loại - TruyenTranh.Online';
-  const description =
-    'Khám phá danh mục thể loại truyện tranh đa dạng trên TruyenTranh.Online. Cập nhật nhanh các thể loại manga, manhwa, manhua hay nhất!';
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Danh Mục Thể Loại',
-    url: `${SITE_URL}/categories`,
-    description,
-  };
-
-  return {
-    title,
-    description,
-    keywords: [
-      'thể loại truyện tranh',
-      'truyện tranh hay',
-      'truyện tranh mới',
-      'manga',
-      'manhwa',
-      'manhua',
-      'truyện tranh online',
-    ].join(', '),
-    openGraph: {
-      type: 'website',
-      title,
-      description,
-      url: `${SITE_URL}/categories`,
-      siteName: 'TruyenTranh.Online',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-    alternates: {
-      canonical: `${SITE_URL}/categories`,
-    },
-    other: {
-      'application/ld+json': JSON.stringify(structuredData),
-    },
-  };
+export async function generateMetadata() {
+  const categories = await fetchCategories();
+  return generateCategorySEO(categories);
 }
 
 export default async function CategoryPage() {
-  const categories = await getCategoriesData();
+  const categories = await fetchCategories();
 
   return (
     <div className="container mx-auto p-4">

@@ -33,7 +33,6 @@ const SkeletonComicReader = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-black bg-opacity-80 p-3 z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="skeleton h-10 w-32"></div>
-          <div className="skeleton h-10 w-40"></div>
           <div className="skeleton h-10 w-32"></div>
         </div>
       </div>

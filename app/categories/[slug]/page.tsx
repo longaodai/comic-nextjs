@@ -1,16 +1,9 @@
-import { Metadata } from 'next';
 import { request } from '@/config/axios';
 import Pagination from '@/components/ui/Pagination';
 import ComicCard from '@/components/ui/ComicCard';
 import SectionTitle from '@/components/ui/SectionTitle';
-import { Comic } from '@/types/comic';
-
-interface PaginationData {
-  totalItems: number;
-  totalItemsPerPage: number;
-  currentPage: number;
-  pageRanges: number;
-}
+import { Comic, PaginationData } from '@/types/comic';
+import { generateComicGenreSEO } from '@/utils/seoHelper';
 
 interface PageProps {
   params: Promise<{
@@ -21,16 +14,12 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const response = await request.get(`/the-loai/${slug}?page=1`);
   const data = response.data.data;
-  return {
-    title: data.titlePage || 'Comic Category',
-    description: `Explore the best comics in the ${data.titlePage} category.`,
-  };
+
+  return generateComicGenreSEO(slug, data.titlePage, data.items || []);
 }
 
 export default async function ComicCategoryPage({

@@ -1,17 +1,10 @@
-import { Metadata } from 'next';
 import { request } from '@/config/axios';
 import Pagination from '@/components/ui/Pagination';
 import ComicCard from '@/components/ui/ComicCard';
 import SectionTitle from '@/components/ui/SectionTitle';
-import { Comic } from '@/types/comic';
+import { Comic, PaginationData } from '@/types/comic';
 import ComicType from '@/components/ui/ComicType';
-
-interface PaginationData {
-  totalItems: number;
-  totalItemsPerPage: number;
-  currentPage: number;
-  pageRanges: number;
-}
+import { generateComicCategorySEO } from '@/utils/seoHelper';
 
 interface PageProps {
   params: Promise<{
@@ -22,16 +15,12 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const response = await request.get(`/danh-sach/${slug}?page=1`);
   const data = response.data.data;
-  return {
-    title: data.titlePage || 'Comic List Type',
-    description: `Explore the best comics in the ${data.titlePage} list type.`,
-  };
+
+  return generateComicCategorySEO(slug, data.titlePage, data.items || []);
 }
 
 export default async function ComicCategoryPage({

@@ -1,11 +1,9 @@
-import { Metadata } from 'next';
 import { request } from '@/config/axios';
 import { Search } from 'lucide-react';
 import Pagination from '@/components/ui/Pagination';
 import ComicCard from '@/components/ui/ComicCard';
 import { Comic } from '@/types/comic';
-
-const SITE_URL = 'https://truyentranh.online';
+import { generateSearchSEO } from '@/utils/seoHelper';
 
 interface PageProps {
   searchParams: Promise<{
@@ -32,46 +30,10 @@ async function getSearchResults(query: string, page: number) {
   }
 }
 
-export async function generateMetadata({
-  searchParams,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: PageProps) {
   const { q } = await searchParams;
   const query = q || '';
-  const title = query
-    ? `Kết quả tìm kiếm cho "${query}" - TruyenTranh.Online`
-    : 'Tìm kiếm - TruyenTranh.Online';
-  const description = `Tìm kiếm truyện tranh với từ khóa "${query}". Khám phá hàng ngàn bộ truyện tranh hấp dẫn được cập nhật liên tục tại TruyenTranh.Online.`;
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'SearchResultsPage',
-    name: title,
-    description,
-    url: `${SITE_URL}/search?q=${query}`,
-  };
-
-  return {
-    title,
-    description,
-    keywords: ['tìm kiếm truyện tranh', 'đọc truyện tranh', query].join(', '),
-    openGraph: {
-      type: 'website',
-      title,
-      description,
-      url: `${SITE_URL}/search?q=${query}`,
-      siteName: 'TruyenTranh.Online',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-    alternates: {
-      canonical: `${SITE_URL}/search?q=${query}`,
-    },
-    other: {
-      'application/ld+json': JSON.stringify(structuredData),
-    },
-  };
+  return generateSearchSEO(query);
 }
 
 export default async function SearchPage({ searchParams }: PageProps) {

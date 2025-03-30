@@ -1,4 +1,3 @@
-import { Metadata } from 'next';
 import Image from 'next/image';
 import { request } from '@/config/axios';
 import { notFound } from 'next/navigation';
@@ -6,8 +5,7 @@ import ChapterList from '@/components/ui/ChapterList';
 import { Chapter, Comic } from '@/types/comic';
 import ComicDescription from '@/components/ui/ComicDescription';
 import Link from 'next/link';
-
-const SITE_URL = 'https://truyentranh.online';
+import { generateComicDetailSEO } from '@/utils/seoHelper';
 
 interface PageProps {
   params: Promise<{
@@ -25,38 +23,12 @@ async function getComicDetail(slug: string): Promise<Comic | null> {
   }
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const comic = await getComicDetail(slug);
   if (!comic) return {};
 
-  const title = `${comic.name} - Đọc Truyện Tranh Online`;
-  const description = `Đọc truyện ${
-    comic.name
-  } miễn phí với đầy đủ chapter cập nhật mới nhất. Thể loại: ${comic.category
-    .map((c) => c.name)
-    .join(', ')}.`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      type: 'article',
-      title,
-      description,
-      url: `${SITE_URL}/comic/${comic.slug}`,
-      images: [
-        {
-          url: `https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`,
-          width: 800,
-          height: 1200,
-          alt: comic.name,
-        },
-      ],
-    },
-  };
+  return generateComicDetailSEO(comic);
 }
 
 export default async function ComicDetailPage({ params }: PageProps) {

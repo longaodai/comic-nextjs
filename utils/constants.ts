@@ -20,3 +20,7 @@ export const COMIC_LIST_TYPE = [
     image: '/assets/images/banner4.webp',
   },
 ];
+
+export const SITE_NAME = 'ComicMoi';
+export const SITE_URL = 'https://truyentranh.online';
+export const CDN_IMAGE_URL = 'https://img.otruyenapi.com';

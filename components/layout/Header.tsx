@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search, Menu, X } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
+import { SITE_NAME } from '@/utils/constants';
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -24,7 +25,7 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center px-4 py-3">
         {/* Logo */}
         <h1 className="text-3xl font-bold text-primary">
-          <Link href="/">Truyentranh.online</Link>
+          <Link href="/">{SITE_NAME}</Link>
         </h1>
 
         {/* Search Bar */}

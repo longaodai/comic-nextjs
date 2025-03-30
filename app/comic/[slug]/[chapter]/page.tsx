@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Chapter, Comic, ChapterNavigation, ImageDetail } from '@/types/comic';
 import StickyNavigation from '@/components/ui/StickyNavigation';
 import ComicChapterNavigation from '@/components/ui/ComicChapterNavigation';
+import { SITE_URL } from '@/utils/constants';
 
 export default function ComicReaderPage() {
   const params = useParams();
@@ -78,7 +79,7 @@ export default function ComicReaderPage() {
   useEffect(() => {
     if (comic) {
       document.title = `${comic.name} - Chapter ${chapter}`;
-      const seoDescription = `Đọc ${comic?.name} - Chapter ${chapter} miễn phí, nhanh và chất lượng cao tại TruyenTranh.Online`;
+      const seoDescription = `Đọc ${comic?.name} - Chapter ${chapter} miễn phí, nhanh và chất lượng cao tại ${SITE_URL}`;
       const metaDescription = document.querySelector(
         "meta[name='description']"
       );

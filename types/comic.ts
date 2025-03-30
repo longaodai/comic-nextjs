@@ -75,3 +75,10 @@ export interface ComicsResponse {
     APP_DOMAIN_CDN_IMAGE: string;
   };
 }
+
+export interface PaginationData {
+  totalItems: number;
+  totalItemsPerPage: number;
+  currentPage: number;
+  pageRanges: number;
+}
