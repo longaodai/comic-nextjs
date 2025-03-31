@@ -6,11 +6,14 @@ import Link from 'next/link';
 import { Search, Menu, X } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 import { SITE_NAME } from '@/utils/constants';
+import Image from 'next/image';
+import { useThemeStore } from '@/store/useThemeStore';
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const router = useRouter();
+  const { theme } = useThemeStore();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +28,22 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center px-4 py-3">
         {/* Logo */}
         <h1 className="text-3xl font-bold text-primary">
-          <Link href="/">{SITE_NAME}</Link>
+          <Link href="/">
+            <div className="relative w-52 h-12">
+              <Image
+                src={
+                  theme === 'light'
+                    ? '/assets/images/logo-dark.png'
+                    : '/assets/images/logo-light.png'
+                }
+                alt={`Logo - ${SITE_NAME}`}
+                fill
+                className="object-contain"
+                sizes="160px"
+                priority
+              />
+            </div>
+          </Link>
         </h1>
 
         {/* Search Bar */}
@@ -36,7 +54,7 @@ const Header: React.FC = () => {
           <input
             type="text"
             placeholder="Tìm kiếm truyện..."
-            className="bg-transparent outline-none px-3 py-1 w-60 text-lg focus:w-72 transition-all text-secondary"
+            className="bg-transparent outline-none px-3 py-1 w-32 lg:w-60 text-lg focus:w-36 lg:focus:w-72 transition-all text-secondary"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -49,8 +67,8 @@ const Header: React.FC = () => {
         </form>
 
         {/* Navigation & Theme Toggle */}
-        <nav className="hidden md:flex items-center gap-6 text-lg">
-          <ul className="flex gap-6">
+        <nav className="hidden md:flex items-center gap-3 lg:gap-6 text-lg">
+          <ul className="flex gap-3 lg:gap-6">
             <li>
               <Link href="/" className="hover:text-secondary">
                 Home

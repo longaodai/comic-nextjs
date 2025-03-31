@@ -7,7 +7,7 @@ export async function generateMetadata() {
 
 export default async function ComicListPage() {
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 min-h-[40vh]">
       <ComicType />
     </div>
   );

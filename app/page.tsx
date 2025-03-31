@@ -4,6 +4,7 @@ import ComicSection from '@/components/ui/ComicSection';
 import HomeSlider from '@/components/ui/HomeSlider';
 import { ComicsResponse, SEOData } from '@/types/comic';
 import { generateSEOData } from '@/utils/seoHelper';
+import ViewMoreButton from '@/components/ui/ViewMore';
 
 const fetchComicsData = unstable_cache(
   async () => {
@@ -54,32 +55,44 @@ export default async function HomePage() {
       <HomeSlider />
 
       {latestComics.length > 0 && (
-        <ComicSection
-          title="Truyện mới"
-          comics={latestComics}
-          color="#ff416c"
-        />
+        <>
+          <ComicSection
+            title="Truyện mới"
+            comics={latestComics}
+            color="#ff416c"
+          />
+          <ViewMoreButton url={'list/truyen-moi'} />
+        </>
       )}
       {upcomingComics.length > 0 && (
-        <ComicSection
-          title="Sắp ra mắt"
-          comics={upcomingComics}
-          color="#56ccf2"
-        />
+        <>
+          <ComicSection
+            title="Truyện Hot"
+            comics={upcomingComics}
+            color="#56ccf2"
+          />
+          <ViewMoreButton url={'list/sap-ra-mat'} />
+        </>
       )}
       {ongoingComics.length > 0 && (
-        <ComicSection
-          title="Đang phát hành"
-          comics={ongoingComics}
-          color="#f2994a"
-        />
+        <>
+          <ComicSection
+            title="Đang phát hành"
+            comics={ongoingComics}
+            color="#f2994a"
+          />
+          <ViewMoreButton url={'list/dang-phat-hanh'} />
+        </>
       )}
       {completedComics.length > 0 && (
-        <ComicSection
-          title="Truyện hoàn thành"
-          comics={completedComics}
-          color="#00b09b"
-        />
+        <>
+          <ComicSection
+            title="Truyện hoàn thành"
+            comics={completedComics}
+            color="#00b09b"
+          />
+          <ViewMoreButton url={'list/hoan-thanh'} />
+        </>
       )}
     </div>
   );

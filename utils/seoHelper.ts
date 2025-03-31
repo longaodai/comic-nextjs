@@ -133,7 +133,7 @@ export function generateComicListSEO() {
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/assets/images/logo.png`,
       },
     },
     image: `${SITE_URL}/default-cover.jpg`,
@@ -150,7 +150,7 @@ export function generateComicListSEO() {
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Sắp Ra Mắt',
+          name: 'Truyện Hot',
           url: `${SITE_URL}/list/sap-ra-mat`,
         },
         {
@@ -233,7 +233,7 @@ export function generateComicCategorySEO(
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/assets/images/logo.png`,
       },
     },
     image: `${SITE_URL}/default-category.jpg`,
@@ -313,7 +313,7 @@ export function generateComicGenreSEO(
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/assets/images/logo.png`,
       },
     },
     image: `${SITE_URL}/default-category.jpg`,
@@ -397,7 +397,7 @@ export function generateComicDetailSEO(comic: Comic) {
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/assets/images/logo.png`,
       },
     },
     potentialAction: {
