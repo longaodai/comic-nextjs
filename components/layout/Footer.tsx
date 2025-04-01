@@ -116,14 +116,17 @@ const Footer = () => {
               Liên Hệ & Cập Nhật
             </h2>
             <div className="flex flex-col space-y-2">
-              <Link href="#" className="btn btn-outline btn-sm w-full">
-                Facebook
+              <Link
+                href="https://t.me/+OWOn-ypgcrIyMzc1"
+                className="btn btn-outline btn-sm w-full"
+              >
+                Telegram
               </Link>
-              <Link href="#" className="btn btn-outline btn-sm w-full">
-                Twitter
-              </Link>
-              <Link href="#" className="btn btn-outline btn-sm w-full">
-                Instagram
+              <Link
+                href="mailto:vcl.helloworld@gmail.com"
+                className="btn btn-outline btn-sm w-full"
+              >
+                Email: vcl.helloworld@gmail.com
               </Link>
             </div>
           </div>

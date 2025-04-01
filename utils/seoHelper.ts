@@ -15,7 +15,7 @@ export function generateSEOData(seo: SEOData | null) {
         }))
       : [
           {
-            url: `${SITE_URL}/default-og-image.jpg`,
+            url: `${SITE_URL}/assets/images/logo-light.png`,
             width: 1200,
             height: 630,
             alt: defaultTitle,
@@ -76,7 +76,7 @@ export function generateCategorySEO(categories: Category[]) {
     ...categories.map((c) => c.name.toLowerCase()),
   ].join(', ');
 
-  const ogImage = `${SITE_URL}/default-category.jpg`;
+  const ogImage = `${SITE_URL}/assets/images/logo-light.png`;
 
   const structuredData = {
     '@context': 'https://schema.org',
@@ -133,10 +133,10 @@ export function generateComicListSEO() {
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/assets/images/logo.png`,
+        url: `${SITE_URL}/assets/images/logo-light.png`,
       },
     },
-    image: `${SITE_URL}/default-cover.jpg`,
+    image: `${SITE_URL}/assets/images/logo-light.png`,
     mainEntity: {
       '@type': 'ItemList',
       name: 'Danh Sách Truyện Tranh',
@@ -191,7 +191,7 @@ export function generateComicListSEO() {
       locale: 'vi_VN',
       images: [
         {
-          url: `${SITE_URL}/default-cover.jpg`,
+          url: `${SITE_URL}/assets/images/logo-light.png`,
           width: 1200,
           height: 630,
           alt: title,
@@ -202,7 +202,7 @@ export function generateComicListSEO() {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${SITE_URL}/default-cover.jpg`],
+      images: [`${SITE_URL}/assets/images/logo-light.png`],
     },
     alternates: {
       canonical: url,
@@ -233,10 +233,10 @@ export function generateComicCategorySEO(
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/assets/images/logo.png`,
+        url: `${SITE_URL}/assets/images/logo-light.png`,
       },
     },
-    image: `${SITE_URL}/default-category.jpg`,
+    image: `${SITE_URL}/assets/images/logo-light.png`,
     hasPart: comics.slice(0, 10).map((comic, index) => ({
       '@type': 'ListItem',
       position: index + 1,
@@ -271,7 +271,7 @@ export function generateComicCategorySEO(
       locale: 'vi_VN',
       images: [
         {
-          url: `${SITE_URL}/default-category.jpg`,
+          url: `${SITE_URL}/assets/images/logo-light.png`,
           width: 1200,
           height: 630,
           alt: title,
@@ -282,7 +282,7 @@ export function generateComicCategorySEO(
       card: 'summary_large_image',
       title: `${title} - Thể Loại Truyện Tranh Hot | ${SITE_NAME}`,
       description,
-      images: [`${SITE_URL}/default-category.jpg`],
+      images: [`${SITE_URL}/assets/images/logo-light.png`],
     },
     alternates: {
       canonical: url,
@@ -313,10 +313,10 @@ export function generateComicGenreSEO(
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/assets/images/logo.png`,
+        url: `${SITE_URL}/assets/images/logo-light.png`,
       },
     },
-    image: `${SITE_URL}/default-category.jpg`,
+    image: `${SITE_URL}/assets/images/logo-light.png`,
     hasPart: comics.slice(0, 10).map((comic, index) => ({
       '@type': 'ListItem',
       position: index + 1,
@@ -351,7 +351,7 @@ export function generateComicGenreSEO(
       locale: 'vi_VN',
       images: [
         {
-          url: `${SITE_URL}/default-category.jpg`,
+          url: `${SITE_URL}/assets/images/logo-light.png`,
           width: 1200,
           height: 630,
           alt: title,
@@ -362,7 +362,7 @@ export function generateComicGenreSEO(
       card: 'summary_large_image',
       title: `${title} - Danh Mục Truyện Tranh Hot | ${SITE_NAME}`,
       description,
-      images: [`${SITE_URL}/default-category.jpg`],
+      images: [`${SITE_URL}/assets/images/logo-light.png`],
     },
     alternates: {
       canonical: url,
@@ -397,7 +397,7 @@ export function generateComicDetailSEO(comic: Comic) {
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/assets/images/logo.png`,
+        url: `${SITE_URL}/assets/images/logo-light.png`,
       },
     },
     potentialAction: {

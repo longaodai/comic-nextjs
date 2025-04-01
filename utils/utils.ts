@@ -1,3 +1,5 @@
+import { COMING_SOON, COMPLETED, ONGOING } from './constants';
+
 export function timeAgo(dateString: string): string {
   const now = new Date();
   const updatedDate = new Date(dateString);
@@ -30,4 +32,17 @@ export function getLatestChapter(chapters: Chapter[]): number | string {
     .filter((num) => !isNaN(num));
 
   return parsedChapters.length > 0 ? Math.max(...parsedChapters) : '?';
+}
+
+export function getComicStatus(status: string): string {
+  switch (status) {
+    case ONGOING:
+      return 'Đang cập nhật';
+
+    case COMPLETED:
+      return 'Hoàn thành';
+    case COMING_SOON:
+    default:
+      return 'Hot';
+  }
 }

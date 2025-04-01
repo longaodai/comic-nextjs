@@ -6,6 +6,8 @@ import { Chapter, Comic } from '@/types/comic';
 import ComicDescription from '@/components/ui/ComicDescription';
 import Link from 'next/link';
 import { generateComicDetailSEO } from '@/utils/seoHelper';
+import { getComicStatus } from '@/utils/utils';
+import { CDN_IMAGE_URL } from '@/utils/constants';
 
 interface PageProps {
   params: Promise<{
@@ -42,35 +44,91 @@ export default async function ComicDetailPage({ params }: PageProps) {
   ].sort((a, b) => Number(b.chapter_name) - Number(a.chapter_name));
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex flex-col lg:flex-row bg-base-100 shadow-xl rounded-xl overflow-hidden">
-        <div className="relative w-full lg:w-1/4">
-          <Image
-            src={`https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`}
-            alt={comic.name}
-            className="w-full h-full object-cover"
-            width={800}
-            height={1200}
-            unoptimized
-          />
-        </div>
-        <div className="p-6 lg:w-3/4">
-          <h1 className="text-3xl font-bold text-base-content">{comic.name}</h1>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {comic.category.map((cat) => (
-              <Link
-                href={`/categories/${cat.slug}`}
-                key={cat.slug}
-                className="badge badge-secondary text-xs"
-              >
-                {cat.name}
-              </Link>
-            ))}
+    <div className="container mx-auto px-4 py-6 max-w-6xl">
+      {/* Comic Info Card */}
+      <div className="bg-base-100 shadow-lg rounded-xl overflow-hidden mb-8">
+        <div className="flex flex-col md:flex-row">
+          {/* Thumbnail Container with fixed aspect ratio */}
+          <div className="md:w-1/4 flex-shrink-0">
+            <div className="relative aspect-[2/3] overflow-hidden bg-gray-100">
+              <Image
+                src={`${CDN_IMAGE_URL}/uploads/comics/${comic.thumb_url}`}
+                alt={comic.name}
+                className="object-cover hover:scale-105 transition-transform duration-300"
+                fill
+                sizes="(max-width: 768px) 100vw, 25vw"
+                priority
+              />
+            </div>
           </div>
-          <ComicDescription content={comic?.content || null} />
+
+          {/* Comic Details */}
+          <div className="p-6 flex flex-col flex-grow">
+            {/* Title and Status */}
+            <div className="flex flex-col mb-4">
+              <h1 className="text-2xl md:text-3xl font-bold text-base-content">
+                {comic.name}
+              </h1>
+              <div className="badge badge-primary py-2 mt-2">
+                {getComicStatus(comic.status)}
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium mb-2">Thể loại:</h3>
+              <div className="flex flex-wrap gap-2">
+                {comic.category.map((cat) => (
+                  <Link
+                    href={`/categories/${cat.slug}`}
+                    key={cat.slug}
+                    className="badge badge-outline badge-secondary hover:badge-secondary transition-colors text-xs py-2"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="mt-2">
+              <h3 className="text-sm font-medium mb-2">Nội dung:</h3>
+              <ComicDescription content={comic?.content || null} />
+            </div>
+
+            {/* Quick Actions */}
+            {chapters.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4 md:mt-auto pt-4">
+                <Link
+                  href={`/comic/${comic.slug}/chapter/${chapters[0].chapter_name}`}
+                  className="btn btn-primary btn-sm md:btn-md"
+                >
+                  Đọc mới nhất
+                </Link>
+                <Link
+                  href={`/comic/${comic.slug}/chapter/${
+                    chapters[chapters.length - 1].chapter_name
+                  }`}
+                  className="btn btn-outline btn-sm md:btn-md"
+                >
+                  Đọc từ đầu
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <ChapterList comicSlug={comic.slug} initialChapters={chapters} />
+
+      {/* Chapter List Section */}
+      <div className="bg-base-100 shadow-lg rounded-xl overflow-hidden p-4">
+        <div className="">
+          <h2 className="text-xl font-bold">Danh sách Chapter</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {chapters.length} chapter{chapters.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <ChapterList comicSlug={comic.slug} initialChapters={chapters} />
+      </div>
     </div>
   );
 }

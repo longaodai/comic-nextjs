@@ -35,11 +35,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
 var path = require("path");
 var axios_1 = require("axios");
-var DOMAIN = 'https://truyentranh.online';
+var DOMAIN = 'https://comicmoi.site';
 var API_BASE = 'https://otruyenapi.com/v1/api';
 var STATIC_PATHS = [
     '/',
@@ -50,6 +59,55 @@ var STATIC_PATHS = [
     '/list/hoan-thanh',
     '/categories',
 ];
+var api = axios_1.default.create({
+    timeout: 10000,
+    headers: {
+        Connection: 'keep-alive',
+    },
+});
+api.interceptors.response.use(undefined, function (err) { return __awaiter(void 0, void 0, void 0, function () {
+    var config, maxRetries, retryDelay;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                config = err.config || {};
+                config.retryCount = config.retryCount || 0;
+                maxRetries = 3;
+                retryDelay = 1000;
+                if (config.retryCount >= maxRetries) {
+                    return [2 /*return*/, Promise.reject(err)];
+                }
+                config.retryCount += 1;
+                return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve, retryDelay); })];
+            case 1:
+                _a.sent();
+                return [2 /*return*/, api(config)];
+        }
+    });
+}); });
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<':
+                return '&lt;';
+            case '>':
+                return '&gt;';
+            case '&':
+                return '&amp;';
+            case "'":
+                return '&apos;';
+            case '"':
+                return '&quot;';
+            default:
+                return c;
+        }
+    });
+}
+function createUrlEntry(loc, lastmod, priority, changefreq) {
+    if (priority === void 0) { priority = '0.8'; }
+    if (changefreq === void 0) { changefreq = 'daily'; }
+    return "<url>\n    <loc>".concat(escapeXml(loc), "</loc>\n    <lastmod>").concat(lastmod.split('.')[0], "Z</lastmod>\n    <changefreq>").concat(changefreq, "</changefreq>\n    <priority>").concat(priority, "</priority>\n  </url>");
+}
 function fetchCategories() {
     return __awaiter(this, void 0, void 0, function () {
         var response, error_1;
@@ -57,7 +115,7 @@ function fetchCategories() {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, axios_1.default.get("".concat(API_BASE, "/the-loai"))];
+                    return [4 /*yield*/, api.get("".concat(API_BASE, "/the-loai"))];
                 case 1:
                     response = _a.sent();
                     return [2 /*return*/, response.data.data.items.map(function (item) { return item.slug; })];
@@ -72,7 +130,7 @@ function fetchCategories() {
 }
 function fetchComicsByCategory(categorySlug) {
     return __awaiter(this, void 0, void 0, function () {
-        var comics, page, totalPages, response, data, error_2;
+        var comics, page, totalPages, firstResponse, firstData, pagePromises, responses, error_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -82,22 +140,36 @@ function fetchComicsByCategory(categorySlug) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 5, , 6]);
-                    _a.label = 2;
+                    return [4 /*yield*/, api.get("".concat(API_BASE, "/the-loai/").concat(categorySlug, "?page=").concat(page))];
                 case 2:
-                    if (!(page <= totalPages)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, axios_1.default.get("".concat(API_BASE, "/the-loai/").concat(categorySlug, "?page=").concat(page))];
-                case 3:
-                    response = _a.sent();
-                    data = response.data.data;
-                    if (!data || !data.items)
-                        return [3 /*break*/, 4];
-                    data.items.forEach(function (comic) {
+                    firstResponse = _a.sent();
+                    firstData = firstResponse.data.data;
+                    if (!firstData || !firstData.items)
+                        return [2 /*return*/, []];
+                    firstData.items.forEach(function (comic) {
                         comics.set(comic.slug, comic.updatedAt);
                     });
-                    totalPages = Math.ceil(data.params.pagination.totalItems /
-                        data.params.pagination.totalItemsPerPage);
-                    page++;
-                    return [3 /*break*/, 2];
+                    totalPages = Math.ceil(firstData.params.pagination.totalItems /
+                        firstData.params.pagination.totalItemsPerPage);
+                    pagePromises = [];
+                    for (page = 2; page <= totalPages; page++) {
+                        pagePromises.push(api.get("".concat(API_BASE, "/the-loai/").concat(categorySlug, "?page=").concat(page)));
+                    }
+                    if (!(pagePromises.length > 0)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, Promise.allSettled(pagePromises)];
+                case 3:
+                    responses = _a.sent();
+                    responses.forEach(function (result) {
+                        if (result.status === 'fulfilled') {
+                            var data = result.value.data.data;
+                            if (data && data.items) {
+                                data.items.forEach(function (comic) {
+                                    comics.set(comic.slug, comic.updatedAt);
+                                });
+                            }
+                        }
+                    });
+                    _a.label = 4;
                 case 4: return [3 /*break*/, 6];
                 case 5:
                     error_2 = _a.sent();
@@ -107,7 +179,7 @@ function fetchComicsByCategory(categorySlug) {
                         var slug = _a[0], updatedAt = _a[1];
                         return ({
                             slug: slug,
-                            updatedAt: updatedAt,
+                            updatedAt: updatedAt || new Date().toISOString(),
                         });
                     })];
             }
@@ -116,44 +188,58 @@ function fetchComicsByCategory(categorySlug) {
 }
 function generateSitemap() {
     return __awaiter(this, void 0, void 0, function () {
-        var urlSet, currentDate, categories, _i, categories_1, category, comics, sitemapContent, sitemapPath;
+        var urlEntries, currentDate, categories, categoryPromises, categoryResults, sitemapContent, sitemapPath;
+        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    urlSet = new Set();
+                    console.time('Sitemap generation');
+                    urlEntries = [];
                     currentDate = new Date().toISOString();
-                    STATIC_PATHS.forEach(function (path) {
-                        urlSet.add("<url><loc>".concat(DOMAIN).concat(path, "</loc><lastmod>").concat(currentDate, "</lastmod></url>"));
+                    STATIC_PATHS.forEach(function (staticPath) {
+                        urlEntries.push(createUrlEntry("".concat(DOMAIN).concat(staticPath), currentDate, '1.0', 'weekly'));
                     });
                     return [4 /*yield*/, fetchCategories()];
                 case 1:
                     categories = _a.sent();
-                    _i = 0, categories_1 = categories;
-                    _a.label = 2;
+                    console.log("Fetched ".concat(categories.length, " categories"));
+                    categoryPromises = categories.map(function (category) { return __awaiter(_this, void 0, void 0, function () {
+                        var categoryUrl, comics, comicUrls;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    categoryUrl = createUrlEntry("".concat(DOMAIN, "/categories/").concat(category), currentDate, '0.9', 'weekly');
+                                    return [4 /*yield*/, fetchComicsByCategory(category)];
+                                case 1:
+                                    comics = _a.sent();
+                                    console.log("Fetched ".concat(comics.length, " comics for category ").concat(category));
+                                    comicUrls = comics.map(function (_a) {
+                                        var slug = _a.slug, updatedAt = _a.updatedAt;
+                                        return createUrlEntry("".concat(DOMAIN, "/comic/").concat(slug), updatedAt, '0.8', 'daily');
+                                    });
+                                    return [2 /*return*/, __spreadArray([categoryUrl], comicUrls, true)];
+                            }
+                        });
+                    }); });
+                    return [4 /*yield*/, Promise.allSettled(categoryPromises)];
                 case 2:
-                    if (!(_i < categories_1.length)) return [3 /*break*/, 5];
-                    category = categories_1[_i];
-                    urlSet.add("<url><loc>".concat(DOMAIN, "/categories/").concat(category, "</loc><lastmod>").concat(currentDate, "</lastmod></url>"));
-                    return [4 /*yield*/, fetchComicsByCategory(category)];
-                case 3:
-                    comics = _a.sent();
-                    comics.forEach(function (_a) {
-                        var slug = _a.slug, updatedAt = _a.updatedAt;
-                        var lastmod = updatedAt ? updatedAt : currentDate;
-                        urlSet.add("<url><loc>".concat(DOMAIN, "/comic/").concat(slug, "</loc><lastmod>").concat(lastmod, "</lastmod></url>"));
+                    categoryResults = _a.sent();
+                    categoryResults.forEach(function (result) {
+                        if (result.status === 'fulfilled') {
+                            urlEntries.push.apply(urlEntries, result.value);
+                        }
                     });
-                    _a.label = 4;
-                case 4:
-                    _i++;
-                    return [3 /*break*/, 2];
-                case 5:
-                    sitemapContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  ".concat(Array.from(urlSet).join('\n  '), "\n</urlset>");
+                    sitemapContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  ".concat(urlEntries.join('\n  '), "\n</urlset>");
                     sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
                     fs.writeFileSync(sitemapPath, sitemapContent);
-                    console.log('✅ Sitemap generated successfully at:', sitemapPath);
+                    console.timeEnd('Sitemap generation');
+                    console.log("\u2705 Sitemap generated successfully with ".concat(urlEntries.length, " URLs at: ").concat(sitemapPath));
                     return [2 /*return*/];
             }
         });
     });
 }
-generateSitemap();
+generateSitemap().catch(function (error) {
+    console.error('Failed to generate sitemap:', error);
+    process.exit(1);
+});

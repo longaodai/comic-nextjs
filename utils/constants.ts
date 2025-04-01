@@ -78,6 +78,10 @@ export const COMIC_LIST_CATEGORIES = [
   { name: '16+', slug: '16' },
 ];
 
+export const ONGOING = 'ongoing';
+export const COMPLETED = 'completed';
+export const COMING_SOON = 'coming_soon';
+
 export const SITE_NAME = 'ComicMoi.site';
 export const SITE_URL = 'https://ComicMoi.site';
 export const CDN_IMAGE_URL = 'https://img.otruyenapi.com';

@@ -24,7 +24,6 @@ export default function ChapterList({
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-semibold">Chapters</h2>
       {visibleChapters.length > 0 ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-4">
