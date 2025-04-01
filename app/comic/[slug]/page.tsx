@@ -100,13 +100,13 @@ export default async function ComicDetailPage({ params }: PageProps) {
             {chapters.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4 md:mt-auto pt-4">
                 <Link
-                  href={`/comic/${comic.slug}/chapter/${chapters[0].chapter_name}`}
+                  href={`/comic/${comic.slug}/${chapters[0].chapter_name}`}
                   className="btn btn-primary btn-sm md:btn-md"
                 >
                   Đọc mới nhất
                 </Link>
                 <Link
-                  href={`/comic/${comic.slug}/chapter/${
+                  href={`/comic/${comic.slug}/${
                     chapters[chapters.length - 1].chapter_name
                   }`}
                   className="btn btn-outline btn-sm md:btn-md"
