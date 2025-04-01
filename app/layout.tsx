@@ -1,5 +1,6 @@
 import './globals.css';
 import ClientLayout from '@/components/layout/ClientLayout';
+import { GoogleAnalyticsTracking } from '@/components/ui/GoogleAnalytics';
 
 export default function RootLayout({
   children,
@@ -8,6 +9,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <GoogleAnalyticsTracking />
       <body>
         <ClientLayout>{children}</ClientLayout>
       </body>
