@@ -45,6 +45,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+//npx tsc generateSitemap.ts
 var fs = require("fs");
 var path = require("path");
 var axios_1 = require("axios");
@@ -58,6 +59,9 @@ var STATIC_PATHS = [
     '/list/dang-phat-hanh',
     '/list/hoan-thanh',
     '/categories',
+    '/contact',
+    '/terms',
+    '/privacy',
 ];
 var api = axios_1.default.create({
     timeout: 10000,

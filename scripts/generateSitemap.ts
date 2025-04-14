@@ -1,3 +1,4 @@
+//npx tsc generateSitemap.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
@@ -12,6 +13,9 @@ const STATIC_PATHS = [
   '/list/dang-phat-hanh',
   '/list/hoan-thanh',
   '/categories',
+  '/contact',
+  '/terms',
+  '/privacy',
 ];
 
 const api = axios.create({
