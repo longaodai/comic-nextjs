@@ -35,17 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-//npx tsc generateSitemap.ts
 var fs = require("fs");
 var path = require("path");
 var axios_1 = require("axios");
@@ -63,6 +53,9 @@ var STATIC_PATHS = [
     '/terms',
     '/privacy',
 ];
+// Constants for sitemap size management
+var MAX_URLS_PER_SITEMAP = 40000; // Keep under the 50,000 limit
+var OUTPUT_DIR = path.join(process.cwd(), 'public');
 var api = axios_1.default.create({
     timeout: 10000,
     headers: {
@@ -190,60 +183,92 @@ function fetchComicsByCategory(categorySlug) {
         });
     });
 }
-function generateSitemap() {
+// Function to write a sitemap file
+function writeSitemap(filename, urls) {
+    var content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  ".concat(urls.join('\n  '), "\n</urlset>");
+    fs.writeFileSync(path.join(OUTPUT_DIR, filename), content);
+}
+// Function to write the sitemap index file
+function writeSitemapIndex(sitemapFiles) {
+    var sitemapEntries = sitemapFiles.map(function (file) { return "<sitemap>\n    <loc>".concat(DOMAIN, "/").concat(file.filename, "</loc>\n    <lastmod>").concat(file.lastmod, "</lastmod>\n  </sitemap>"); });
+    var indexContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  ".concat(sitemapEntries.join('\n  '), "\n</sitemapindex>");
+    fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), indexContent);
+}
+function generateSitemaps() {
     return __awaiter(this, void 0, void 0, function () {
-        var urlEntries, currentDate, categories, categoryPromises, categoryResults, sitemapContent, sitemapPath;
-        var _this = this;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var currentDate, sitemapFiles, staticUrlEntries, staticSitemapFile, categories, currentSitemapUrls, currentSitemapIndex, _i, categories_1, category, categoryUrl, comics, _a, comics_1, _b, slug, updatedAt, comicUrl, filename, filename;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
                     console.time('Sitemap generation');
-                    urlEntries = [];
+                    // Ensure output directory exists
+                    if (!fs.existsSync(OUTPUT_DIR)) {
+                        fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+                    }
                     currentDate = new Date().toISOString();
-                    STATIC_PATHS.forEach(function (staticPath) {
-                        urlEntries.push(createUrlEntry("".concat(DOMAIN).concat(staticPath), currentDate, '1.0', 'weekly'));
+                    sitemapFiles = [];
+                    staticUrlEntries = STATIC_PATHS.map(function (staticPath) {
+                        return createUrlEntry("".concat(DOMAIN).concat(staticPath), currentDate, '1.0', 'weekly');
                     });
+                    staticSitemapFile = 'sitemap-static.xml';
+                    writeSitemap(staticSitemapFile, staticUrlEntries);
+                    sitemapFiles.push({ filename: staticSitemapFile, lastmod: currentDate });
+                    console.log("Created static sitemap with ".concat(staticUrlEntries.length, " URLs"));
                     return [4 /*yield*/, fetchCategories()];
                 case 1:
-                    categories = _a.sent();
+                    categories = _c.sent();
                     console.log("Fetched ".concat(categories.length, " categories"));
-                    categoryPromises = categories.map(function (category) { return __awaiter(_this, void 0, void 0, function () {
-                        var categoryUrl, comics, comicUrls;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    categoryUrl = createUrlEntry("".concat(DOMAIN, "/categories/").concat(category), currentDate, '0.9', 'weekly');
-                                    return [4 /*yield*/, fetchComicsByCategory(category)];
-                                case 1:
-                                    comics = _a.sent();
-                                    console.log("Fetched ".concat(comics.length, " comics for category ").concat(category));
-                                    comicUrls = comics.map(function (_a) {
-                                        var slug = _a.slug, updatedAt = _a.updatedAt;
-                                        return createUrlEntry("".concat(DOMAIN, "/comic/").concat(slug), updatedAt, '0.8', 'daily');
-                                    });
-                                    return [2 /*return*/, __spreadArray([categoryUrl], comicUrls, true)];
-                            }
-                        });
-                    }); });
-                    return [4 /*yield*/, Promise.allSettled(categoryPromises)];
+                    currentSitemapUrls = [];
+                    currentSitemapIndex = 1;
+                    _i = 0, categories_1 = categories;
+                    _c.label = 2;
                 case 2:
-                    categoryResults = _a.sent();
-                    categoryResults.forEach(function (result) {
-                        if (result.status === 'fulfilled') {
-                            urlEntries.push.apply(urlEntries, result.value);
+                    if (!(_i < categories_1.length)) return [3 /*break*/, 5];
+                    category = categories_1[_i];
+                    categoryUrl = createUrlEntry("".concat(DOMAIN, "/categories/").concat(category), currentDate, '0.9', 'weekly');
+                    currentSitemapUrls.push(categoryUrl);
+                    return [4 /*yield*/, fetchComicsByCategory(category)];
+                case 3:
+                    comics = _c.sent();
+                    console.log("Fetched ".concat(comics.length, " comics for category \"").concat(category, "\""));
+                    // Create URL entries for comics
+                    for (_a = 0, comics_1 = comics; _a < comics_1.length; _a++) {
+                        _b = comics_1[_a], slug = _b.slug, updatedAt = _b.updatedAt;
+                        comicUrl = createUrlEntry("".concat(DOMAIN, "/comic/").concat(slug), updatedAt, '0.8', 'daily');
+                        currentSitemapUrls.push(comicUrl);
+                        // If we've reached the limit, write the current sitemap and start a new one
+                        if (currentSitemapUrls.length >= MAX_URLS_PER_SITEMAP) {
+                            filename = "sitemap-comics-".concat(currentSitemapIndex, ".xml");
+                            writeSitemap(filename, currentSitemapUrls);
+                            sitemapFiles.push({ filename: filename, lastmod: currentDate });
+                            console.log("Created sitemap ".concat(filename, " with ").concat(currentSitemapUrls.length, " URLs"));
+                            // Reset for next sitemap
+                            currentSitemapUrls = [];
+                            currentSitemapIndex++;
                         }
-                    });
-                    sitemapContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  ".concat(urlEntries.join('\n  '), "\n</urlset>");
-                    sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-                    fs.writeFileSync(sitemapPath, sitemapContent);
+                    }
+                    _c.label = 4;
+                case 4:
+                    _i++;
+                    return [3 /*break*/, 2];
+                case 5:
+                    // Write any remaining URLs to a final sitemap
+                    if (currentSitemapUrls.length > 0) {
+                        filename = "sitemap-comics-".concat(currentSitemapIndex, ".xml");
+                        writeSitemap(filename, currentSitemapUrls);
+                        sitemapFiles.push({ filename: filename, lastmod: currentDate });
+                        console.log("Created sitemap ".concat(filename, " with ").concat(currentSitemapUrls.length, " URLs"));
+                    }
+                    // Create the sitemap index file
+                    writeSitemapIndex(sitemapFiles);
                     console.timeEnd('Sitemap generation');
-                    console.log("\u2705 Sitemap generated successfully with ".concat(urlEntries.length, " URLs at: ").concat(sitemapPath));
+                    console.log("\u2705 Successfully generated ".concat(sitemapFiles.length, " sitemaps with a sitemap index"));
                     return [2 /*return*/];
             }
         });
     });
 }
-generateSitemap().catch(function (error) {
-    console.error('Failed to generate sitemap:', error);
+generateSitemaps().catch(function (error) {
+    console.error('Failed to generate sitemaps:', error);
     process.exit(1);
 });

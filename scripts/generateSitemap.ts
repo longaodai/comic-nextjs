@@ -18,6 +18,10 @@ const STATIC_PATHS = [
   '/privacy',
 ];
 
+// Constants for sitemap size management
+const MAX_URLS_PER_SITEMAP = 40000; // Keep under the 50,000 limit
+const OUTPUT_DIR = path.join(process.cwd(), 'public');
+
 const api = axios.create({
   timeout: 10000,
   headers: {
@@ -138,64 +142,125 @@ async function fetchComicsByCategory(
   }));
 }
 
-async function generateSitemap() {
+// Function to write a sitemap file
+function writeSitemap(filename: string, urls: string[]): void {
+  const content = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${urls.join('\n  ')}
+</urlset>`;
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, filename), content);
+}
+
+// Function to write the sitemap index file
+function writeSitemapIndex(
+  sitemapFiles: { filename: string; lastmod: string }[]
+): void {
+  const sitemapEntries = sitemapFiles.map(
+    (file) => `<sitemap>
+    <loc>${DOMAIN}/${file.filename}</loc>
+    <lastmod>${file.lastmod}</lastmod>
+  </sitemap>`
+  );
+
+  const indexContent = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${sitemapEntries.join('\n  ')}
+</sitemapindex>`;
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), indexContent);
+}
+
+async function generateSitemaps() {
   console.time('Sitemap generation');
-  const urlEntries: string[] = [];
+
+  // Ensure output directory exists
+  if (!fs.existsSync(OUTPUT_DIR)) {
+    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  }
+
   const currentDate = new Date().toISOString();
+  const sitemapFiles: { filename: string; lastmod: string }[] = [];
 
-  STATIC_PATHS.forEach((staticPath) => {
-    urlEntries.push(
-      createUrlEntry(`${DOMAIN}${staticPath}`, currentDate, '1.0', 'weekly')
-    );
-  });
+  // Create static pages sitemap
+  const staticUrlEntries = STATIC_PATHS.map((staticPath) =>
+    createUrlEntry(`${DOMAIN}${staticPath}`, currentDate, '1.0', 'weekly')
+  );
 
+  const staticSitemapFile = 'sitemap-static.xml';
+  writeSitemap(staticSitemapFile, staticUrlEntries);
+  sitemapFiles.push({ filename: staticSitemapFile, lastmod: currentDate });
+  console.log(`Created static sitemap with ${staticUrlEntries.length} URLs`);
+
+  // Fetch all categories
   const categories = await fetchCategories();
   console.log(`Fetched ${categories.length} categories`);
 
-  const categoryPromises = categories.map(async (category) => {
+  // Process categories and create category-specific sitemaps
+  let currentSitemapUrls: string[] = [];
+  let currentSitemapIndex = 1;
+
+  for (const category of categories) {
+    // Add category URL
     const categoryUrl = createUrlEntry(
       `${DOMAIN}/categories/${category}`,
       currentDate,
       '0.9',
       'weekly'
     );
+    currentSitemapUrls.push(categoryUrl);
 
+    // Fetch comics for this category
     const comics = await fetchComicsByCategory(category);
-    console.log(`Fetched ${comics.length} comics for category ${category}`);
+    console.log(`Fetched ${comics.length} comics for category "${category}"`);
 
-    const comicUrls = comics.map(({ slug, updatedAt }) => {
-      return createUrlEntry(
+    // Create URL entries for comics
+    for (const { slug, updatedAt } of comics) {
+      const comicUrl = createUrlEntry(
         `${DOMAIN}/comic/${slug}`,
         updatedAt,
         '0.8',
         'daily'
       );
-    });
 
-    return [categoryUrl, ...comicUrls];
-  });
+      currentSitemapUrls.push(comicUrl);
 
-  const categoryResults = await Promise.allSettled(categoryPromises);
-  categoryResults.forEach((result) => {
-    if (result.status === 'fulfilled') {
-      urlEntries.push(...result.value);
+      // If we've reached the limit, write the current sitemap and start a new one
+      if (currentSitemapUrls.length >= MAX_URLS_PER_SITEMAP) {
+        const filename = `sitemap-comics-${currentSitemapIndex}.xml`;
+        writeSitemap(filename, currentSitemapUrls);
+        sitemapFiles.push({ filename, lastmod: currentDate });
+        console.log(
+          `Created sitemap ${filename} with ${currentSitemapUrls.length} URLs`
+        );
+
+        // Reset for next sitemap
+        currentSitemapUrls = [];
+        currentSitemapIndex++;
+      }
     }
-  });
+  }
 
-  const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${urlEntries.join('\n  ')}
-</urlset>`;
+  // Write any remaining URLs to a final sitemap
+  if (currentSitemapUrls.length > 0) {
+    const filename = `sitemap-comics-${currentSitemapIndex}.xml`;
+    writeSitemap(filename, currentSitemapUrls);
+    sitemapFiles.push({ filename, lastmod: currentDate });
+    console.log(
+      `Created sitemap ${filename} with ${currentSitemapUrls.length} URLs`
+    );
+  }
 
-  const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
-  fs.writeFileSync(sitemapPath, sitemapContent);
+  // Create the sitemap index file
+  writeSitemapIndex(sitemapFiles);
+
   console.timeEnd('Sitemap generation');
   console.log(
-    `✅ Sitemap generated successfully with ${urlEntries.length} URLs at: ${sitemapPath}`
+    `✅ Successfully generated ${sitemapFiles.length} sitemaps with a sitemap index`
   );
 }
 
-generateSitemap().catch((error) => {
-  console.error('Failed to generate sitemap:', error);
+generateSitemaps().catch((error) => {
+  console.error('Failed to generate sitemaps:', error);
   process.exit(1);
 });
